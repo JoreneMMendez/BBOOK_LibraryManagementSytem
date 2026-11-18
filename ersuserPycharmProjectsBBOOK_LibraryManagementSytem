@@ -1,0 +1,150 @@
+[33me7b4718[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m v0.24 Add main loop and README
+ Interface.py         | 86 [32m+++++++++++++++++++++++++++++++++++++++++++++++[m
+ README.md            | 94 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ screenshots/.gitkeep |  0
+ 3 files changed, 180 insertions(+)
+[33mafce483[m v0.23 Add users and settings screens
+ Interface.py | 149 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 149 insertions(+)
+[33m08124b9[m v0.22 Add borrow, search, reports menus
+ Interface.py | 160 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 160 insertions(+)
+[33mb248ada[m v0.22 Add borrow, search, reports menus
+ Interface.py | 160 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 160 insertions(+)
+[33m12e4367[m v0.21 Add login, books, borrowers screens
+ Interface.py | 186 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 186 insertions(+)
+[33mb053dc1[m v0.19 Add report tables
+ Interface.py | 1 [32m+[m
+ 1 file changed, 1 insertion(+)
+[33m610e1c8[m v0.18 Add auth and password hashing
+ Interface.py | 1 [32m+[m
+ 1 file changed, 1 insertion(+)
+[33m207df11[m v0.18 Add auth and password hashing
+ Interface.py | 1 [32m+[m
+ 1 file changed, 1 insertion(+)
+[33mcfaaf39[m v0.17 Add borrowing rules, search, settings
+ dataManager.py | 180 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 180 insertions(+)
+[33m6a8aa33[m v0.17 Add borrowing rules, search, settings
+ dataManager.py | 180 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 180 insertions(+)
+[33mcb24bf7[m v0.17 Add borrowing rules, search, settings
+ dataManager.py | 180 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 180 insertions(+)
+[33m5da8fd1[m v0.17 Add borrowing rules, search, settings
+ dataManager.py | 180 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 180 insertions(+)
+[33m0530920[m v0.16 Add status and book/borrower CRUD
+ dataManager.py | 147 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 147 insertions(+)
+[33m2fbff70[m v0.19 Add report tables
+ Interface.py |  1 [32m+[m
+ reports.py   | 92 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 2 files changed, 93 insertions(+)
+[33m8e7e3f4[m v0.18 Add auth and password hashing
+ Interface.py |   1 [32m+[m
+ auth.py      | 160 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 2 files changed, 161 insertions(+)
+[33m3b3ec3b[m v0.17 Add borrowing rules, search, settings
+ dataManager.py | 180 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 180 insertions(+)
+[33m5cd4e11[m v0.16 Add status and book/borrower CRUD
+ dataManager.py | 147 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 147 insertions(+)
+[33ma26ef3f[m v0.15 Add dataManager file handling
+ Interface.py | 1 [32m+[m
+ 1 file changed, 1 insertion(+)
+[33mcbb55fb[m v0.15 Add dataManager file handling
+ Interface.py   |   1 [32m+[m
+ dataManager.py | 187 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 2 files changed, 188 insertions(+)
+[33m97da8be[m v0.14 Add screen and input helpers
+ Interface.py | 148 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 148 insertions(+)
+[33m77d8e51[m v0.14 Add screen and input helpers
+ Interface.py | 148 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 148 insertions(+)
+[33m34518af[m v0.13 Add submenu screens
+ Interface.py | 69 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 69 insertions(+)
+[33m5ebfb0e[m v0.12 Add dashboard screen
+ Interface.py | 60 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 60 insertions(+)
+[33m37e349a[m v0.12 Add dashboard screen
+ Interface.py | 60 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 60 insertions(+)
+[33m6d68e0c[m v0.12 Add dashboard screen
+ Interface.py | 60 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 60 insertions(+)
+[33mee9a601[m v0.12 Add dashboard screen
+ Interface.py | 60 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 60 insertions(+)
+[33m3451f61[m v0.11 Add main menu and login screens
+ Interface.py | 53 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 53 insertions(+)
+[33mccd435f[m v0.10 Add menu and form layouts
+ Interface.py | 53 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 53 insertions(+)
+[33m00db76a[m v0.10 Add menu and form layouts
+ Interface.py | 53 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 53 insertions(+)
+[33mfa0e4e4[m v0.9 Add panel and screen engine
+ Interface.py | 97 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 97 insertions(+)
+[33mb2f816b[m v0.8 Add BBOOK ASCII logo
+ Interface.py | 37 [32m+++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 37 insertions(+)
+[33m3ef51d6[m v0.7 Add Interface base setup
+ Interface.py | 48 [32m++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 48 insertions(+)
+[33m6e1ddda[m v0.6 Add color themes
+ themes.py | 61 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 61 insertions(+)
+[33m0860a40[m v0.5 Clean old prototype, add gitignore
+ .gitignore                                     |   5 [32m++[m
+ .idea/.gitignore                               |   5 [31m--[m
+ .idea/BBOOK_LibraryManagementSytem.iml         |  14 [31m---[m
+ .idea/inspectionProfiles/profiles_settings.xml |   6 [31m--[m
+ .idea/misc.xml                                 |   4 [31m-[m
+ .idea/modules.xml                              |   8 [31m--[m
+ .idea/vcs.xml                                  |   6 [31m--[m
+ Interface.py                                   |  55 [31m------------[m
+ books.txt                                      |   0
+ borrowers.txt                                  |   0
+ borrowing_history.txt                          |   0
+ library.py                                     |  20 [31m-----[m
+ main.py                                        |  26 [32m++++++[m
+ menu.py                                        | 120 [31m-------------------------[m
+ requirements.txt                               |   1 [32m+[m
+ test.py                                        |  20 [31m-----[m
+ users.txt                                      |   0
+ 17 files changed, 32 insertions(+), 258 deletions(-)
+[33md617fd5[m menu design and login v0.5
+ Interface.py |  87 [32m++[m[31m-----------------------------------------[m
+ library.py   |  20 [32m++++++++++[m
+ menu.py      | 120 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 3 files changed, 143 insertions(+), 84 deletions(-)
+[33md8f4b81[m menu design and login v0.3
+ Interface.py | 172 [32m++++++++++++++++++++++++++++++++++++++[m[31m---------------------[m
+ 1 file changed, 112 insertions(+), 60 deletions(-)
+[33mcc40280[m menu design fix 0.2
+ Interface.py | 64 [32m++++++++++++++++++++++++++++++++++++++++++++[m[31m----------------[m
+ test.py      | 20 [32m+++++++++++++++++++[m
+ 2 files changed, 67 insertions(+), 17 deletions(-)
+[33meb1ba55[m menu design 0.1
+ Interface.py | 57 [32m++++++++++++++++++++++++++++++++[m[31m-------------------------[m
+ 1 file changed, 32 insertions(+), 25 deletions(-)
+[33mb1b12d9[m rich UI test
+ Interface.py | 47 [32m+++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 47 insertions(+)
+[33mc63cc4e[m setup
+ .idea/.gitignore                               |  5 [32m+++++[m
+ .idea/BBOOK_LibraryManagementSytem.iml         | 14 [32m++++++++++++++[m
+ .idea/inspectionProfiles/profiles_settings.xml |  6 [32m++++++[m
+ .idea/misc.xml                                 |  4 [32m++++[m
+ .idea/modules.xml                              |  8 [32m++++++++[m
+ .idea/vcs.xml                                  |  6 [32m++++++[m
+ Interface.py                                   |  0
+ 7 files changed, 43 insertions(+)
