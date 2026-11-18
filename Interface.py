@@ -648,3 +648,151 @@ def settingsInterface():
         ("2", "Update my password", "Needs your current password"),
         ("0", "Back to main menu", "Return to the main menu"),
     ])
+
+
+# start a new screen
+def startScreen(title):
+    screen["title"] = title
+    screen["body"] = []
+
+
+# add something to the screen
+def addToScreen(renderable):
+    screen["body"].append(renderable)
+
+
+# add a line of text
+def addNote(text):
+    screen["body"].append(Text.from_markup(text))
+
+
+# add a centered table and a blank line
+def addTable(table):
+    screen["body"].append(Align.center(table))
+    screen["body"].append(Text(" "))
+
+
+# show the question and return the answer
+def ask(prompt, password=False, error=""):
+    drawScreen(formInterface(prompt, error))
+    return readInput(password)
+
+
+# keep the answer on the screen
+def remember(prompt, answer):
+    screen["body"].append(Text.assemble(("> ", "key"), (prompt + ": ", "muted"), (answer, "main")))
+
+
+# message for a wrong choice
+def invalidChoice():
+    say("[bad]Error: Invalid choice...[/bad]")
+    tm.sleep(0.5)
+
+
+# wait for Enter
+def pause():
+    ask("Press Enter to continue")
+
+
+# ask for text, 0 cancels (None), Enter uses the default
+def askText(prompt, default=None):
+    error = ""
+    while True:
+        text = ask(prompt, error=error).strip()
+        if text == "0":
+            return None
+        text = dataManager.cleanText(text)
+        if text == "" and default is not None:
+            text = default
+        if text == "":
+            error = "[bad]Error: This cannot be empty.[/bad]"
+            continue
+        remember(prompt, text)
+        return text
+
+
+# ask for a number from minValue to maxValue, 0 cancels (None)
+def askNumber(prompt, minValue, maxValue, default=None):
+    error = ""
+    while True:
+        text = ask(prompt, error=error).strip()
+        if text == "0":
+            return None
+        if text == "" and default is not None:
+            remember(prompt, str(default))
+            return default
+        try:
+            number = int(text)
+        except ValueError:
+            error = "[bad]Error: Please enter a whole number.[/bad]"
+            continue
+        if number < minValue or number > maxValue:
+            error = "[bad]Error: Enter a number from " + str(minValue) + " to " + str(maxValue) + ".[/bad]"
+            continue
+        remember(prompt, str(number))
+        return number
+
+
+# ask for a password
+def askPassword(prompt):
+    text = ask(prompt, password=True)
+    remember(prompt, "*" * len(text))
+    return text
+
+
+# ask yes or no
+def askYesNo(question):
+    error = ""
+    while True:
+        answer = ask(question + " (y/n)", error=error).strip().lower()
+        if answer == "y":
+            remember(question, "yes")
+            return True
+        if answer == "n":
+            remember(question, "no")
+            return False
+        error = "[bad]Error: Please type y or n.[/bad]"
+
+
+# ask for a role, None if cancelled
+def askRole():
+    error = ""
+    while True:
+        choice = ask("Role: 1 = " + auth.ROLES[0] + ", 2 = " + auth.ROLES[1] + " (0 = cancel)", error=error)
+        if choice == "1":
+            remember("Role", auth.ROLES[0])
+            return auth.ROLES[0]
+        elif choice == "2":
+            remember("Role", auth.ROLES[1])
+            return auth.ROLES[1]
+        elif choice == "0":
+            return None
+        else:
+            error = "[bad]Error: Enter 1 or 2 (0 = cancel).[/bad]"
+
+
+# show the result message and wait
+def showResult(ok, message):
+    addNote(" ")
+    if ok:
+        addToScreen(Text.assemble(("", "good"), (message, "good")))
+    else:
+        addToScreen(Text.assemble(("Error: ", "bad"), (message, "bad")))
+    pause()
+
+
+# only admins can continue
+def requireAdmin(currentUser):
+    if currentUser.isAdmin():
+        return True
+    startScreen("Access denied")
+    addNote("[bad]Error: Access denied. Administrator only.[/bad]")
+    pause()
+    return False
+
+
+# show a table and wait
+def showTableScreen(title, table):
+    startScreen(title)
+    addTable(table)
+    pause()
