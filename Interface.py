@@ -180,3 +180,56 @@ def say(text):
         lead = "\n"
         text = text[1:]
     console.print(lead + " " * margin + text)
+
+
+# fill a section with the menu and selection panels
+# options is a list of (key, label, note)
+def fillNavSection(section, options):
+    width = 0
+    for key, label, note in options:
+        if len(label) > width:
+            width = len(label)
+    keys = Text(justify="center")
+    labels = Text(no_wrap=True)
+    for index in range(len(options)):
+        key, label, note = options[index]
+        keys.append("[" + key + "]", style="key")
+        labels.append(label.ljust(width + 3), style="bold")
+        labels.append(note, style="muted")
+        if index < len(options) - 1:
+            keys.append("\n")
+            labels.append("\n")
+    section.split_row(
+        Layout(makePanel(Align.center(keys), "Menu"), ratio=1),
+        Layout(makePanel(labels, "Selection"), ratio=4),
+    )
+
+
+# a section for the menu
+def navSection(options):
+    nav = Layout(size=len(options) + 2)
+    fillNavSection(nav, options)
+    return nav
+
+
+# screen for all the sub menus
+def subMenuInterface(title, options):
+    return baseLayout([
+        section(ascii("3", title), 1),
+        section(Text(" "), 1),
+        navSection(options),
+    ], "Your choice")
+
+
+# screen for questions and tables, shows screen["body"]
+# the question is the title of the input box
+def formInterface(inputTitle="Input", error=""):
+    parts = [
+        section(ascii("3", screen["title"]), 1),
+        section(Text(" "), 1),
+    ]
+    if len(screen["body"]) > 0:
+        body = Group(*screen["body"])
+        parts.append(section(body, measure(body)))
+        parts.append(section(Text(" "), 1))
+    return baseLayout(parts, inputTitle, error)
