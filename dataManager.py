@@ -839,3 +839,183 @@ def checkFiles():
     loadSettings()
     problems = problems + fileErrors
     return counts, problems
+
+
+# borrow a book, check the rules first
+def borrowBook(bookId, borrowerId, days=loan_days):
+    books = loadBooks()
+    borrowers = loadBorrowers()
+    history = loadHistory()
+    book = findRecord(books, bookId)
+    borrower = findRecord(borrowers, borrowerId)
+    if book is None:
+        return False, "Book not found."
+    if borrower is None:
+        return False, "Borrower not found."
+    if book["available"] <= 0:
+        return False, "No copies of this book are available."
+
+    # check the loans of the borrower
+    loans = 0
+    for record in history:
+        if record["borrower_id"] == borrower["id"] and record["status"] != "Returned":
+            loans = loans + 1
+            if getStatus(record) == "Overdue":
+                return False, "This borrower has an overdue book. Return it first."
+            if record["book_id"] == book["id"]:
+                return False, "This borrower already has this book."
+    if loans >= max_loans:
+        return False, "This borrower already has " + str(max_loans) + " books (the limit)."
+
+    record = {
+        "id": nextId(history, "H"),
+        "book_id": book["id"],
+        "borrower_id": borrower["id"],
+        "date_borrowed": todayText(),
+        "due_date": str(date.today() + timedelta(days=days)),
+        "date_returned": "-",
+        "status": "Borrowed",
+    }
+    if not appendRecord(HISTORY_FILE, HISTORY_FIELDS, record):
+        return False, "Could not save the record (file error)."
+    book["available"] = book["available"] - 1
+    if not saveBooks(books):
+        return False, "Could not update the book copies (file error)."
+    return True, "Borrowed! Record " + record["id"] + ", due on " + record["due_date"] + "."
+
+
+# return a book and give the copy back
+def returnBook(recordId):
+    history = loadHistory()
+    books = loadBooks()
+    record = findRecord(history, recordId)
+    if record is None:
+        return False, "Record not found."
+    if record["status"] == "Returned":
+        return False, "This book was already returned."
+    late = daysLate(record)
+    record["date_returned"] = todayText()
+    record["status"] = "Returned"
+    book = findRecord(books, record["book_id"])
+    if book is not None and book["available"] < book["copies"]:
+        book["available"] = book["available"] + 1
+        if not saveBooks(books):
+            return False, "Could not update the book copies (file error)."
+    if not saveHistory(history):
+        return False, "Could not save the record (file error)."
+    if late > 0:
+        return True, "Returned " + str(late) + " day(s) late."
+    return True, "Book returned on time. Thank you!"
+
+
+# move the due date later
+def extendDueDate(recordId, extraDays):
+    history = loadHistory()
+    record = findRecord(history, recordId)
+    if record is None:
+        return False, "Record not found."
+    if record["status"] == "Returned":
+        return False, "This book was already returned."
+    dueDate = parseDate(record["due_date"])
+    if dueDate is None:
+        return False, "This record has an invalid due date."
+    if extraDays < 1 or extraDays > max_extend_days:
+        return False, "Extra days must be from 1 to " + str(max_extend_days) + "."
+    record["due_date"] = str(dueDate + timedelta(days=extraDays))
+    if saveHistory(history):
+        return True, "New due date: " + record["due_date"] + "."
+    return False, "Could not save the changes (file error)."
+
+
+# delete a returned record
+def deleteHistory(recordId):
+    history = loadHistory()
+    record = findRecord(history, recordId)
+    if record is None:
+        return False, "Record not found."
+    if record["status"] != "Returned":
+        return False, "Return the book first before deleting this record."
+    history.remove(record)
+    if saveHistory(history):
+        return True, "Record " + record["id"] + " deleted."
+    return False, "Could not save the changes (file error)."
+
+
+def searchBooks(keyword):
+    keyword = keyword.strip().lower()
+    results = []
+    for book in loadBooks():
+        text = book["id"] + " " + book["title"] + " " + book["author"] + " " + book["category"]
+        if keyword in text.lower():
+            results.append(book)
+    return results
+
+
+def searchBorrowers(keyword):
+    keyword = keyword.strip().lower()
+    results = []
+    for borrower in loadBorrowers():
+        text = borrower["id"] + " " + borrower["name"] + " " + borrower["contact"]
+        if keyword in text.lower():
+            results.append(borrower)
+    return results
+
+
+# search records by id, book, borrower or status
+def searchHistory(keyword):
+    keyword = keyword.strip().lower()
+    titles = getBookTitles()
+    names = getBorrowerNames()
+    results = []
+    for record in loadHistory():
+        text = record["id"] + " " + record["book_id"] + " " + record["borrower_id"] + " " + getStatus(record)
+        text = text + " " + titles.get(record["book_id"], "") + " " + names.get(record["borrower_id"], "")
+        if keyword in text.lower():
+            results.append(record)
+    return results
+
+
+# settings.txt has lines like theme=Purple Cyan
+def loadSettings():
+    settings = {"theme": "Purple Cyan"}
+    try:
+        with open(filePath(SETTINGS_FILE), "r", encoding="utf-8") as file:
+            for line in file:
+                if "=" in line:
+                    key, value = line.strip().split("=", 1)
+                    settings[key.strip()] = value.strip()
+    except FileNotFoundError:
+        saveSettings(settings)
+    except OSError:
+        pass
+    return settings
+
+
+def saveSettings(settings):
+    try:
+        with open(filePath(SETTINGS_FILE), "w", encoding="utf-8") as file:
+            for key in settings:
+                file.write(key + "=" + str(settings[key]) + "\n")
+        return True
+    except OSError:
+        return False
+
+
+# read every file once, returns the counts and the problems
+def checkFiles():
+    fileErrors.clear()
+    counts = {}
+    problems = []
+    fileList = [
+        ("books", BOOKS_FILE, BOOK_FIELDS, BOOK_NUMBERS),
+        ("borrowers", BORROWERS_FILE, BORROWER_FIELDS, []),
+        ("history", HISTORY_FILE, HISTORY_FIELDS, []),
+    ]
+    for name, fileName, fields, numbers in fileList:
+        records, skipped = readRecords(fileName, fields, numbers)
+        counts[name] = len(records)
+        if skipped > 0:
+            problems.append(str(skipped) + " corrupted line(s) skipped in " + fileName)
+    loadSettings()
+    problems = problems + fileErrors
+    return counts, problems
