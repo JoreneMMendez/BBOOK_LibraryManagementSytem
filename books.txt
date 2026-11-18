@@ -1,0 +1,12 @@
+B001|Noli Me Tangere|Jose Rizal|Fiction|3|3
+B002|El Filibusterismo|Jose Rizal|Fiction|2|1
+B003|Introduction to Algorithms|Thomas H. Cormen|Technology|2|2
+B004|Python Crash Course|Eric Matthes|Technology|4|3
+B005|A Brief History of Time|Stephen Hawking|Science|2|1
+B006|The Hobbit|J.R.R. Tolkien|Fantasy|3|3
+B007|Harry Potter and the Sorcerer's Stone|J.K. Rowling|Fantasy|3|2
+B008|Sapiens|Yuval Noah Harari|History|2|1
+B009|Clean Code|Robert C. Martin|Technology|2|1
+B010|Philippine History|Teodoro Agoncillo|History|3|3
+B011|The Little Prince|Antoine de Saint-Exupery|Fiction|2|2
+B012|Cosmos|Carl Sagan|Science|1|1
