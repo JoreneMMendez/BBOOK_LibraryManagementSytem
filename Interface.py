@@ -46,3 +46,40 @@ class user:
 
     def isAdmin(self):
         return self._userrole == "Administrator"
+
+
+# draws the logo (1), the arrow (2) or a heading line (3)
+def ascii(designSection = "", label = ""):
+    logo_text = r""" ██████▄  ██████▄   ▄██████▄   ▄██████▄  ███   ███
+███  ▐█▌ ███  ▐█▌ ███▀  ▀███ ███▀  ▀███ ███  ▄██▀
+███▀▀▀█▄ ███▀▀▀█▄ ███    ███ ███    ███ ███▀▀██▄ 
+███▄▄▄██ ███▄▄▄██ ▀███▄▄███▀ ▀███▄▄███▀ ███   ███
+▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀    ▀▀▀▀▀▀     ▀▀▀▀▀▀   ▀▀▀   ▀▀▀ """
+    arrow = r"""   ████
+   ████
+   ████
+██████████
+ ████████
+  ██████
+   ████
+    ██
+    """
+    if designSection == "1":
+        lines = logo_text.strip("\n").split("\n")
+        width = 0
+        for line in lines:
+            if len(line) > width:
+                width = len(line)
+        # colors of the logo lines, top to bottom
+        colors = ["logo1", "logo1", "logo2", "logo3", "logo3"]
+        logo_strip = Text(no_wrap=True, overflow="crop")
+        for index in range(len(lines)):
+            logo_strip.append(lines[index].ljust(width) + "\n", style=colors[min(index, 4)])
+        logo_strip.append("L I B R A R Y   M A N A G E M E N T   S Y S T E M".center(width), style="muted")
+        return Align.center(logo_strip)
+    elif designSection == "2":
+        arrow_strip = Text(arrow.strip("\n"), no_wrap=True, overflow="crop", style="accent")
+        return Align.center(Panel(arrow_strip, expand=False, border_style="border"))
+    elif designSection == "3":
+        return Rule(Text(label, style="accent"), style="border", align="left")
+    return Align.center(Text(" "))
