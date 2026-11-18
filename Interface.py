@@ -579,3 +579,72 @@ def DashboardInterface(currentUser):
         section(Text(" "), 1),
         navSection(options),
     ], "Your choice")
+
+
+def bookInterface(currentUser):
+    return subMenuInterface("Books", [
+        ("1", "View all books", "List every book and its copies"),
+        ("2", "Add a book", "Register a new title"),
+        ("3", "Update a book", "Edit title, author, category, copies"),
+        ("4", adminLabel("Delete a book", currentUser), "Remove a book from the library"),
+        ("0", "Back", "Return to the main menu"),
+    ])
+
+
+def borrowerInterface(currentUser):
+    return subMenuInterface("Borrowers", [
+        ("1", "View all borrowers", "List every member"),
+        ("2", "Add a borrower", "Register a new member"),
+        ("3", "Update a borrower", "Edit name or contact"),
+        ("4", adminLabel("Delete a borrower", currentUser), "Remove a member"),
+        ("0", "Back", "Return to the main menu"),
+    ])
+
+
+def borrowInterface(currentUser):
+    return subMenuInterface("Borrow / Return", [
+        ("1", "Borrow a book", "Lend a book to a borrower"),
+        ("2", "Return a book", "Take a borrowed book back"),
+        ("3", "Borrowing history", "See every record"),
+        ("4", "Extend a due date", "Give a borrower more days"),
+        ("5", adminLabel("Delete a history record", currentUser), "Remove a returned record"),
+        ("0", "Back", "Return to the main menu"),
+    ])
+
+
+def searchInterface():
+    return subMenuInterface("Search", [
+        ("1", "Search books", "Title, author, category or ID"),
+        ("2", "Search borrowers", "Name, ID or contact"),
+        ("3", "Search borrowing records", "Status, book or borrower"),
+        ("0", "Back", "Return to the main menu"),
+    ])
+
+
+def reportInterface():
+    return subMenuInterface("Reports", [
+        ("1", "Borrowed / overdue books", "Who has what, and what is late"),
+        ("2", "Most borrowed books", "The top 10 books"),
+        ("3", "Books by category", "Titles, copies and loans per category"),
+        ("4", "Borrower activity", "How active each borrower is"),
+        ("0", "Back", "Return to the main menu"),
+    ])
+
+
+def userInterface():
+    return subMenuInterface("User Management", [
+        ("1", "View users", "List all accounts"),
+        ("2", "Register a user", "Create an account"),
+        ("3", "Change a user role", "Administrator or Staff"),
+        ("4", "Reset a user password", "Set a new password"),
+        ("5", "Delete a user", "Remove an account"),
+        ("0", "Back", "Return to the main menu"),
+    ])
+
+
+def settingsInterface():
+    return subMenuInterface("System Settings", [
+        ("1", "Change terminal theme", "Pick the colors of the program"),
+        ("2", "Update my password", "Needs your current password"),
+        ("0", "Back to main menu", "Return to the main menu"),
+    ])
