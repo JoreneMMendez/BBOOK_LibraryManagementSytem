@@ -286,3 +286,56 @@ def formInterface(inputTitle="Input", error=""):
         parts.append(section(body, measure(body)))
         parts.append(section(Text(" "), 1))
     return baseLayout(parts, inputTitle, error)
+
+
+# small loading bar
+def loadingBar(message):
+    clearScreen()
+    for blank in range(6):
+        console.print()
+    with Live(console=console, refresh_per_second=20) as live:
+        for step in range(21):
+            text = Text(justify="center")
+            text.append(message + "\n\n", style="bold")
+            text.append("█" * step, style="accent")
+            text.append("░" * (20 - step), style="muted")
+            live.update(Align.center(makePanel(text, width=44)))
+            tm.sleep(0.03)
+
+
+# add (Admin only) to the label for staff
+def adminLabel(text, currentUser):
+    if currentUser.isAdmin():
+        return text
+    return text + " (Admin only)"
+
+
+def menuInterface():
+    return baseLayout([
+        section(ascii("1"), 6),
+        section(Text(" "), 1),
+        navSection([
+            ("1", "Login", "Sign in to the system"),
+            ("0", "Exit...", "Close the program"),
+        ]),
+    ], "Your choice")
+
+
+
+def loginInterface(message="", inputTitle="Username"):
+    text = Text(justify="center")
+    text.append("Sign in to continue\n", style="accent")
+    text.append("Type 0 as the username to go back\n", style="muted")
+    text.append_text(Text.from_markup(message + " "))
+    return baseLayout([
+        section(ascii("1"), 6),
+        section(Text(" "), 1),
+        section(text, 3),
+    ], inputTitle)
+
+
+
+def registerInterface():
+    startScreen("User Management  >  Register a user")
+    addNote("[muted]Type 0 at the username to cancel.[/muted]")
+    return formInterface("Username")
