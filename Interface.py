@@ -16,6 +16,7 @@ from rich.markup import escape
 
 import auth
 import auth
+import auth
 import dataManager
 import dataManager
 import reports
