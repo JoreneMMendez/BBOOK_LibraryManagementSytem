@@ -1457,3 +1457,152 @@ def reportsMenu():
             break
         else:
             invalidChoice()
+
+
+def viewUsers():
+    showTableScreen("User Management  >  All users", reports.usersTable(auth.loadUsers()))
+
+
+def registerUserScreen():
+    registerInterface()
+    username = askText("Username (3-15 letters or numbers)")
+    if username is None:
+        return
+    password = askPassword("Password (at least 6 characters)")
+    again = askPassword("Confirm password")
+    if password != again:
+        showResult(False, "Passwords do not match.")
+        return
+    role = askRole()
+    if role is None:
+        return
+    ok, message = auth.registerUser(username, password, role)
+    showResult(ok, message)
+
+
+def changeRoleScreen():
+    startScreen("User Management  >  Change a role")
+    addTable(reports.usersTable(auth.loadUsers()))
+    addNote("[muted]Type 0 to cancel.[/muted]")
+    username = askText("Username")
+    if username is None:
+        return
+    role = askRole()
+    if role is None:
+        return
+    ok, message = auth.changeRole(username, role)
+    showResult(ok, message)
+
+
+def resetPasswordScreen():
+    startScreen("User Management  >  Reset a password")
+    addTable(reports.usersTable(auth.loadUsers()))
+    addNote("[muted]Type 0 to cancel.[/muted]")
+    username = askText("Username")
+    if username is None:
+        return
+    password = askPassword("New password (at least 6 characters)")
+    again = askPassword("Confirm new password")
+    if password != again:
+        showResult(False, "Passwords do not match.")
+        return
+    ok, message = auth.resetPassword(username, password)
+    showResult(ok, message)
+
+
+def deleteUserScreen(currentUser):
+    startScreen("User Management  >  Delete a user")
+    addTable(reports.usersTable(auth.loadUsers()))
+    addNote("[muted]Type 0 to cancel.[/muted]")
+    username = askText("Username to delete")
+    if username is None:
+        return
+    if askYesNo("Delete user " + username + "?"):
+        ok, message = auth.deleteUser(username, currentUser.getUsername())
+        showResult(ok, message)
+
+
+def usersMenu(currentUser):
+    while True:
+        drawScreen(userInterface())
+        choice = readInput()
+
+        if choice == "1":
+            viewUsers()
+        elif choice == "2":
+            registerUserScreen()
+        elif choice == "3":
+            changeRoleScreen()
+        elif choice == "4":
+            resetPasswordScreen()
+        elif choice == "5":
+            deleteUserScreen(currentUser)
+        elif choice == "0":
+            break
+        else:
+            invalidChoice()
+
+
+# table of the themes with a color preview
+def themeTable(currentName):
+    table = reports.makeTable("Available Themes")
+    table.add_column("No.", justify="right", style="key")
+    table.add_column("Theme")
+    table.add_column("Preview")
+    names = themes.getThemeNames()
+    for index in range(len(names)):
+        name = names[index]
+        label = name
+        if name == currentName:
+            label = name + " (current)"
+        colors = themes.THEMES[name]
+        preview = Text.assemble(("███ ", colors["border"]), ("Sample", colors["accent"]), ("  note", colors["muted"]))
+        table.add_row(str(index + 1), label, preview)
+    return table
+
+
+def changeThemeScreen():
+    settings = dataManager.loadSettings()
+    names = themes.getThemeNames()
+    startScreen("System Settings  >  Theme")
+    addTable(themeTable(settings["theme"]))
+    addNote("[muted]Type 0 to cancel.[/muted]")
+    number = askNumber("Theme number", 1, len(names))
+    if number is None:
+        return
+    chosen = names[number - 1]
+    themes.applyTheme(console, chosen)
+    settings["theme"] = chosen
+    saved = dataManager.saveSettings(settings)
+    startScreen("System Settings  >  Theme")
+    if saved:
+        showResult(True, "Theme set to " + chosen + " and saved.")
+    else:
+        showResult(False, "Theme changed, but it could not be saved (file error).")
+
+
+def changePasswordScreen(currentUser):
+    startScreen("System Settings  >  Update my password")
+    oldPassword = askPassword("Current password")
+    newPassword = askPassword("New password (at least 6 characters)")
+    again = askPassword("Confirm new password")
+    if newPassword != again:
+        showResult(False, "Passwords do not match.")
+        return
+    ok, message = auth.changePassword(currentUser.getUsername(), oldPassword, newPassword)
+    showResult(ok, message)
+
+
+def settingsMenu(currentUser):
+    while True:
+        drawScreen(settingsInterface())
+        choice = readInput()
+
+        if choice == "1":
+            changeThemeScreen()
+        elif choice == "2":
+            changePasswordScreen(currentUser)
+        elif choice == "0":
+            break
+        else:
+            invalidChoice()
