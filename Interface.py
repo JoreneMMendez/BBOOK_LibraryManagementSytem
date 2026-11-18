@@ -1606,3 +1606,89 @@ def settingsMenu(currentUser):
             break
         else:
             invalidChoice()
+
+
+# main menu after login, ends when the user logs out
+def dashboardLoop(currentUser):
+    session["user"] = currentUser.getUsername() + " (" + currentUser.getRole() + ")"
+    while True:
+        drawScreen(DashboardInterface(currentUser))
+        choice = readInput()
+
+        if choice == "1":
+            booksMenu(currentUser)
+        elif choice == "2":
+            borrowersMenu(currentUser)
+        elif choice == "3":
+            borrowMenu(currentUser)
+        elif choice == "4":
+            searchMenu()
+        elif choice == "5":
+            reportsMenu()
+        elif choice == "6":
+            if requireAdmin(currentUser):
+                usersMenu(currentUser)
+        elif choice == "7":
+            settingsMenu(currentUser)
+        elif choice == "0":
+            startScreen("Logout")
+            if askYesNo("Log out?"):
+                loadingBar("Logging out...")
+                session["user"] = ""
+                break
+        else:
+            invalidChoice()
+
+
+# load the theme and check the files
+def startup():
+    settings = dataManager.loadSettings()
+    chosen = themes.applyTheme(console, settings["theme"])
+    if chosen != settings["theme"]:
+        # the saved theme is gone, so save the default
+        settings["theme"] = chosen
+        dataManager.saveSettings(settings)
+    auth.loadUsers()
+    counts, problems = dataManager.checkFiles()
+    loadingBar("Loading records...")
+    console.print(Align.center(Text(
+        "Loaded " + str(counts["books"]) + " books, "
+        + str(counts["borrowers"]) + " borrowers and "
+        + str(counts["history"]) + " borrowing records.",
+        style="muted",
+    )))
+    if len(problems) > 0:
+        startScreen("Startup warnings")
+        for problem in problems:
+            addNote("[warn]Warning: " + escape(problem) + "[/warn]")
+        pause()
+    else:
+        tm.sleep(1)
+
+
+def main():
+    startup()
+    while True:
+
+        drawScreen(menuInterface(), True)
+        choice = readInput()
+
+        if choice == "1":
+            currentUser = loginFlow()
+            if currentUser is not None:
+                dashboardLoop(currentUser)
+        elif choice == "0":
+            break
+        else:
+            invalidChoice()
+
+    clearScreen()
+    say("\nGoodbye!")
+
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (KeyboardInterrupt, EOFError):
+        say("\nProgram closed.")
