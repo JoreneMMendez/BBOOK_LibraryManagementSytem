@@ -951,3 +951,189 @@ def showTableScreen(title, table):
     startScreen(title)
     addTable(table)
     pause()
+
+
+# ask for the login, returns a user or None
+def loginFlow():
+    message = ""
+    for attempt in range(max_attempts):
+        drawScreen(loginInterface(message, "Username"), True)
+        username = readInput().strip()
+        if username == "0":
+            return None
+        drawScreen(loginInterface("[muted]Username:[/muted] " + escape(username), "Password"), True)
+        password = readInput(True)
+        account = auth.login(username, password)
+        if account is not None:
+            loadingBar("Logging in...")
+            return user(account[0], account[1])
+        left = max_attempts - attempt - 1
+        message = "[bad]Error: Wrong username or password. Attempts left: " + str(left) + "[/bad]"
+    startScreen("Login")
+    addNote("[bad]Error: Too many failed attempts. Going back...[/bad]")
+    pause()
+    return None
+
+
+def viewBooks():
+    showTableScreen("Books  >  All books", reports.booksTable(dataManager.loadBooks()))
+
+
+def addBookScreen():
+    startScreen("Books  >  Add a book")
+    addNote("[muted]Type 0 at any question to cancel.[/muted]")
+    title = askText("Title")
+    if title is None:
+        return
+    author = askText("Author")
+    if author is None:
+        return
+    category = askText("Category (example: Fiction)")
+    if category is None:
+        return
+    copies = askNumber("Number of copies (1-99)", 1, 99)
+    if copies is None:
+        return
+    ok, message = dataManager.addBook(title, author, category, copies)
+    showResult(ok, message)
+
+
+def updateBookScreen():
+    startScreen("Books  >  Update a book")
+    addTable(reports.booksTable(dataManager.loadBooks()))
+    addNote("[muted]Type 0 at any question to cancel.[/muted]")
+    bookId = askText("Book ID to update")
+    if bookId is None:
+        return
+    book = dataManager.findRecord(dataManager.loadBooks(), bookId)
+    if book is None:
+        showResult(False, "Book not found.")
+        return
+    addNote("[muted]Press Enter to keep the current value.[/muted]")
+    title = askText("Title (now: " + book["title"] + ")", book["title"])
+    if title is None:
+        return
+    author = askText("Author (now: " + book["author"] + ")", book["author"])
+    if author is None:
+        return
+    category = askText("Category (now: " + book["category"] + ")", book["category"])
+    if category is None:
+        return
+    copies = askNumber("Copies (now: " + str(book["copies"]) + ")", 1, 99, book["copies"])
+    if copies is None:
+        return
+    ok, message = dataManager.updateBook(book["id"], title, author, category, copies)
+    showResult(ok, message)
+
+
+def deleteBookScreen(currentUser):
+    if not requireAdmin(currentUser):
+        return
+    startScreen("Books  >  Delete a book")
+    addTable(reports.booksTable(dataManager.loadBooks()))
+    addNote("[muted]Type 0 to cancel.[/muted]")
+    bookId = askText("Book ID to delete")
+    if bookId is None:
+        return
+    book = dataManager.findRecord(dataManager.loadBooks(), bookId)
+    if book is None:
+        showResult(False, "Book not found.")
+        return
+    if askYesNo("Delete " + book["id"] + " - " + book["title"] + "?"):
+        ok, message = dataManager.deleteBook(book["id"])
+        showResult(ok, message)
+
+
+def booksMenu(currentUser):
+    while True:
+        drawScreen(bookInterface(currentUser))
+        choice = readInput()
+
+        if choice == "1":
+            viewBooks()
+        elif choice == "2":
+            addBookScreen()
+        elif choice == "3":
+            updateBookScreen()
+        elif choice == "4":
+            deleteBookScreen(currentUser)
+        elif choice == "0":
+            break
+        else:
+            invalidChoice()
+
+
+def viewBorrowers():
+    showTableScreen("Borrowers  >  All borrowers", reports.borrowersTable(dataManager.loadBorrowers()))
+
+
+def addBorrowerScreen():
+    startScreen("Borrowers  >  Add a borrower")
+    addNote("[muted]Type 0 at any question to cancel.[/muted]")
+    name = askText("Full name")
+    if name is None:
+        return
+    contact = askText("Contact (phone or email)")
+    if contact is None:
+        return
+    ok, message = dataManager.addBorrower(name, contact)
+    showResult(ok, message)
+
+
+def updateBorrowerScreen():
+    startScreen("Borrowers  >  Update a borrower")
+    addTable(reports.borrowersTable(dataManager.loadBorrowers()))
+    addNote("[muted]Type 0 at any question to cancel.[/muted]")
+    borrowerId = askText("Borrower ID to update")
+    if borrowerId is None:
+        return
+    borrower = dataManager.findRecord(dataManager.loadBorrowers(), borrowerId)
+    if borrower is None:
+        showResult(False, "Borrower not found.")
+        return
+    addNote("[muted]Press Enter to keep the current value.[/muted]")
+    name = askText("Name (now: " + borrower["name"] + ")", borrower["name"])
+    if name is None:
+        return
+    contact = askText("Contact (now: " + borrower["contact"] + ")", borrower["contact"])
+    if contact is None:
+        return
+    ok, message = dataManager.updateBorrower(borrower["id"], name, contact)
+    showResult(ok, message)
+
+
+def deleteBorrowerScreen(currentUser):
+    if not requireAdmin(currentUser):
+        return
+    startScreen("Borrowers  >  Delete a borrower")
+    addTable(reports.borrowersTable(dataManager.loadBorrowers()))
+    addNote("[muted]Type 0 to cancel.[/muted]")
+    borrowerId = askText("Borrower ID to delete")
+    if borrowerId is None:
+        return
+    borrower = dataManager.findRecord(dataManager.loadBorrowers(), borrowerId)
+    if borrower is None:
+        showResult(False, "Borrower not found.")
+        return
+    if askYesNo("Delete " + borrower["id"] + " - " + borrower["name"] + "?"):
+        ok, message = dataManager.deleteBorrower(borrower["id"])
+        showResult(ok, message)
+
+
+def borrowersMenu(currentUser):
+    while True:
+        drawScreen(borrowerInterface(currentUser))
+        choice = readInput()
+
+        if choice == "1":
+            viewBorrowers()
+        elif choice == "2":
+            addBorrowerScreen()
+        elif choice == "3":
+            updateBorrowerScreen()
+        elif choice == "4":
+            deleteBorrowerScreen(currentUser)
+        elif choice == "0":
+            break
+        else:
+            invalidChoice()
