@@ -15,6 +15,7 @@ from rich.control import Control
 from rich.markup import escape
 
 import dataManager
+import dataManager
 import themes
 
 console = Console()
