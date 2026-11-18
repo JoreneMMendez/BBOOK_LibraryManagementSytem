@@ -519,3 +519,63 @@ def DashboardInterface(currentUser):
         section(Text(" "), 1),
         navSection(options),
     ], "Your choice")
+
+
+# a small card for the dashboard
+def statCard(number, label, numberStyle="accent"):
+    text = Text(justify="center")
+    text.append(number + "\n", style=numberStyle)
+    text.append(label, style="muted")
+    return Layout(makePanel(text), ratio=1)
+
+
+
+def DashboardInterface(currentUser):
+    summary = reports.getSummary()
+    now = datetime.now()
+
+    options = [
+        ("1", "Books", "View, add, update and delete books"),
+        ("2", "Borrowers", "Manage the library members"),
+        ("3", "Borrow / Return", "Lend books, take them back, history"),
+        ("4", "Search", "Find books, borrowers and records"),
+        ("5", "Reports", "Overdue, most borrowed, categories"),
+        ("6", adminLabel("User Management", currentUser), "Accounts, roles and passwords"),
+        ("7", "System Settings", "Change the theme or your password"),
+        ("0", "Logout", "Sign out of your account"),
+    ]
+
+    # status bar: user, date and time
+    status = Table.grid(expand=True)
+    status.add_column(justify="left")
+    status.add_column(justify="center")
+    status.add_column(justify="right")
+    status.add_row(
+        Text.assemble(("", "accent"), (currentUser.getUsername(), "bold"), ("   " + currentUser.getRole(), "muted")),
+        Text(now.strftime("%A, %Y-%m-%d"), style="main"),
+        Text(now.strftime("%H:%M:%S"), style="accent"),
+    )
+
+    if summary["overdue"] > 0:
+        overdueStyle = "bad"
+    else:
+        overdueStyle = "good"
+
+    stats = Layout(size=4)
+    stats.split_row(
+        statCard(str(summary["titles"]), "Book titles"),
+        statCard(str(summary["available"]) + " / " + str(summary["copies"]), "Copies available"),
+        statCard(str(summary["borrowed"]), "Currently borrowed"),
+        statCard(str(summary["borrowers"]), "Borrowers"),
+        statCard(str(summary["overdue"]), "Overdue", overdueStyle),
+    )
+
+    return baseLayout([
+        section(ascii("1"), 6),
+        section(Text(" "), 1),
+        section(status, 1),
+        section(Text(" "), 1),
+        stats,
+        section(Text(" "), 1),
+        navSection(options),
+    ], "Your choice")
