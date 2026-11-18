@@ -83,3 +83,100 @@ def ascii(designSection = "", label = ""):
     elif designSection == "3":
         return Rule(Text(label, style="accent"), style="border", align="left")
     return Align.center(Text(" "))
+
+
+# all the panels are made here
+def makePanel(content, title=None, padding=(0, 2), width=None):
+    if title is not None:
+        title = Text(title, style="accent")
+    return Panel(content, title=title, title_align="left", border_style="border", box=box.ROUNDED, padding=padding, style="main", width=width)
+
+
+# clear the screen and the old lines above it
+def clearScreen():
+    console.clear()
+    if not getattr(console, "legacy_windows", False):
+        print("\033[3J", end="", flush=True)
+
+
+# a part of the screen with a fixed height
+def section(renderable, height):
+    return Layout(renderable, size=height)
+
+
+# count the rows something needs
+def measure(renderable):
+    width = console.size.width - margin * 2 - 4
+    return len(console.render_lines(renderable, console.options.update(width=width)))
+
+
+# the input box at the bottom, the error shows on its border
+def inputPanel(title, error=""):
+    subtitle = None
+    if error != "":
+        subtitle = Text.from_markup(" " + error + " ")
+    return Panel(
+        Text(" "),
+        title=Text(" " + title + " ", style="accent"),
+        title_align="left",
+        subtitle=subtitle,
+        subtitle_align="left",
+        border_style="key",
+        box=box.ROUNDED,
+        padding=(0, 2),
+        style="main",
+    )
+
+
+# put the parts and the input box in one layout
+def baseLayout(parts, inputTitle="Input", error=""):
+    layout = Layout()
+    layout.split_column(*parts, section(inputPanel(inputTitle, error), 3))
+    return layout
+
+
+# clear the screen and draw everything inside one big box
+# center adds blank lines on top
+def drawScreen(layout, center=False):
+    clearScreen()
+    rows = 0
+    for child in layout.children:
+        rows = rows + child.size
+    subtitle = datetime.now().strftime("%Y-%m-%d  %H:%M")
+    if session["user"] != "":
+        subtitle = session["user"] + "  |  " + subtitle
+    frame = Panel(
+        layout,
+        title=Text(" BBOOK ", style="accent"),
+        title_align="left",
+        subtitle=Text(" " + subtitle + " ", style="muted"),
+        subtitle_align="right",
+        border_style="border",
+        box=box.ROUNDED,
+        padding=(0, 1),
+        style="main",
+        height=rows + 2,
+    )
+    if center:
+        space = (console.size.height - rows - 2) // 2
+        for blank in range(min(space, max_height)):
+            console.print()
+    console.print(Padding(frame, (0, margin)), height=rows + 2)
+
+
+# read the typing inside the input box
+# move the cursor up into the box first, then back down after Enter
+def readInput(password=False):
+    console.control(Control.move_to_column(margin + 5, -3))
+    text = console.input("[key]>[/key] ", password=password)
+    console.control(Control.move(0, 2))
+    return text
+
+
+# print a short message under the box
+def say(text):
+    lead = ""
+    if text.startswith("\n"):
+        lead = "\n"
+        text = text[1:]
+    console.print(lead + " " * margin + text)
