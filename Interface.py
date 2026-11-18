@@ -1137,3 +1137,163 @@ def borrowersMenu(currentUser):
             break
         else:
             invalidChoice()
+
+
+def borrowBookScreen():
+    startScreen("Borrow / Return  >  Borrow a book  (step 1 of 2)")
+    addTable(reports.booksTable(dataManager.loadBooks()))
+    addNote("[muted]Choose the book. Type 0 to cancel.[/muted]")
+    bookId = askText("Book ID")
+    if bookId is None:
+        return
+    book = dataManager.findRecord(dataManager.loadBooks(), bookId)
+    if book is None:
+        showResult(False, "Book not found.")
+        return
+    if book["available"] <= 0:
+        showResult(False, "No copies of this book are available.")
+        return
+    startScreen("Borrow / Return  >  Borrow a book  (step 2 of 2)")
+    addTable(reports.borrowersTable(dataManager.loadBorrowers()))
+    addNote("[muted]Choose the borrower for [key]" + book["id"] + "[/key] " + escape(book["title"]) + ". Type 0 to cancel.[/muted]")
+    borrowerId = askText("Borrower ID")
+    if borrowerId is None:
+        return
+    days = askNumber("Loan days (Enter = " + str(dataManager.loan_days) + ")", 1, 30, dataManager.loan_days)
+    if days is None:
+        return
+    ok, message = dataManager.borrowBook(book["id"], borrowerId, days)
+    showResult(ok, message)
+
+
+def returnBookScreen():
+    startScreen("Borrow / Return  >  Return a book")
+    addTable(reports.borrowedReport())
+    addNote("[muted]Type the Record ID (example: H006). Type 0 to cancel.[/muted]")
+    recordId = askText("Record ID to return")
+    if recordId is None:
+        return
+    ok, message = dataManager.returnBook(recordId)
+    showResult(ok, message)
+
+
+def historyScreen():
+    showTableScreen("Borrow / Return  >  Borrowing history", reports.historyTable(dataManager.loadHistory()))
+
+
+def extendScreen():
+    startScreen("Borrow / Return  >  Extend a due date")
+    addTable(reports.borrowedReport())
+    addNote("[muted]Type 0 to cancel.[/muted]")
+    recordId = askText("Record ID to extend")
+    if recordId is None:
+        return
+    extra = askNumber("Extra days (1-" + str(dataManager.max_extend_days) + ")", 1, dataManager.max_extend_days)
+    if extra is None:
+        return
+    ok, message = dataManager.extendDueDate(recordId, extra)
+    showResult(ok, message)
+
+
+def deleteRecordScreen(currentUser):
+    if not requireAdmin(currentUser):
+        return
+    startScreen("Borrow / Return  >  Delete a history record")
+    addTable(reports.historyTable(dataManager.loadHistory()))
+    addNote("[muted]Only returned records can be deleted. Type 0 to cancel.[/muted]")
+    recordId = askText("Record ID to delete")
+    if recordId is None:
+        return
+    if askYesNo("Delete record " + recordId.upper() + "?"):
+        ok, message = dataManager.deleteHistory(recordId)
+        showResult(ok, message)
+
+
+def borrowMenu(currentUser):
+    while True:
+        drawScreen(borrowInterface(currentUser))
+        choice = readInput()
+
+        if choice == "1":
+            borrowBookScreen()
+        elif choice == "2":
+            returnBookScreen()
+        elif choice == "3":
+            historyScreen()
+        elif choice == "4":
+            extendScreen()
+        elif choice == "5":
+            deleteRecordScreen(currentUser)
+        elif choice == "0":
+            break
+        else:
+            invalidChoice()
+
+
+def searchBooksScreen():
+    startScreen("Search  >  Books")
+    addNote("[muted]Type part of a title, author, category or ID. Type 0 to cancel.[/muted]")
+    keyword = askText("Search books")
+    if keyword is None:
+        return
+    results = dataManager.searchBooks(keyword)
+    addTable(reports.booksTable(results, "Book results for '" + keyword + "'"))
+    pause()
+
+
+def searchBorrowersScreen():
+    startScreen("Search  >  Borrowers")
+    addNote("[muted]Type part of a name, ID or contact. Type 0 to cancel.[/muted]")
+    keyword = askText("Search borrowers")
+    if keyword is None:
+        return
+    results = dataManager.searchBorrowers(keyword)
+    addTable(reports.borrowersTable(results, "Borrower results for '" + keyword + "'"))
+    pause()
+
+
+def searchHistoryScreen():
+    startScreen("Search  >  Borrowing records")
+    addNote("[muted]Type a status (borrowed, overdue, returned), a book title or a borrower name. Type 0 to cancel.[/muted]")
+    keyword = askText("Search records")
+    if keyword is None:
+        return
+    results = dataManager.searchHistory(keyword)
+    addTable(reports.historyTable(results, "Record results for '" + keyword + "'"))
+    pause()
+
+
+def searchMenu():
+    while True:
+        drawScreen(searchInterface())
+        choice = readInput()
+
+        if choice == "1":
+            searchBooksScreen()
+        elif choice == "2":
+            searchBorrowersScreen()
+        elif choice == "3":
+            searchHistoryScreen()
+        elif choice == "0":
+            break
+        else:
+            invalidChoice()
+
+
+def reportsMenu():
+    while True:
+        drawScreen(reportInterface())
+        choice = readInput()
+
+        if choice == "1":
+            showTableScreen("Reports  >  Borrowed / overdue", reports.borrowedReport())
+        elif choice == "2":
+            showTableScreen("Reports  >  Most borrowed", reports.mostBorrowedReport())
+        elif choice == "3":
+            showTableScreen("Reports  >  By category", reports.categoryReport())
+        elif choice == "4":
+            showTableScreen("Reports  >  Borrower activity", reports.borrowerActivityReport())
+        elif choice == "0":
+            break
+        else:
+            invalidChoice()
