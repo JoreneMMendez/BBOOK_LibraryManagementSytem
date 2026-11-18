@@ -15,6 +15,7 @@ from rich.control import Control
 from rich.markup import escape
 
 import auth
+import auth
 import dataManager
 import dataManager
 import reports
