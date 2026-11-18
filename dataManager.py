@@ -512,3 +512,150 @@ def checkFiles():
     loadSettings()
     problems = problems + fileErrors
     return counts, problems
+
+
+# Returned, Overdue or Borrowed
+# overdue is not in the file, it comes from the due date
+def getStatus(record):
+    if record["status"] == "Returned":
+        return "Returned"
+    dueDate = parseDate(record["due_date"])
+    if dueDate is not None and dueDate < date.today():
+        return "Overdue"
+    return "Borrowed"
+
+
+# days late, 0 if not late or returned
+def daysLate(record):
+    dueDate = parseDate(record["due_date"])
+    if record["status"] == "Returned" or dueDate is None:
+        return 0
+    late = (date.today() - dueDate).days
+    if late > 0:
+        return late
+    return 0
+
+
+# count the loans not returned yet (field is book_id or borrower_id)
+def countActiveLoans(history, field, itemId):
+    count = 0
+    for record in history:
+        if record[field] == itemId and record["status"] != "Returned":
+            count = count + 1
+    return count
+
+
+# add a book, returns True/False and a message
+def addBook(title, author, category, copies):
+    books = loadBooks()
+    title = cleanText(title)
+    author = cleanText(author)
+    category = cleanText(category)
+    if title == "" or author == "" or category == "":
+        return False, "Title, author and category cannot be empty."
+    if copies < 1:
+        return False, "Copies must be at least 1."
+    for book in books:
+        if book["title"].lower() == title.lower() and book["author"].lower() == author.lower():
+            return False, "This book already exists (" + book["id"] + ")."
+    record = {
+        "id": nextId(books, "B"),
+        "title": title,
+        "author": author,
+        "category": category,
+        "copies": copies,
+        "available": copies,
+    }
+    if appendRecord(BOOKS_FILE, BOOK_FIELDS, record):
+        return True, "Book added with ID " + record["id"] + "."
+    return False, "Could not save the book (file error)."
+
+
+# update a book, available is worked out again
+def updateBook(bookId, title, author, category, copies):
+    books = loadBooks()
+    book = findRecord(books, bookId)
+    if book is None:
+        return False, "Book not found."
+    title = cleanText(title)
+    author = cleanText(author)
+    category = cleanText(category)
+    if title == "" or author == "" or category == "":
+        return False, "Title, author and category cannot be empty."
+    active = countActiveLoans(loadHistory(), "book_id", book["id"])
+    if copies < active:
+        return False, "Copies cannot be less than the " + str(active) + " copy(ies) currently borrowed."
+    book["title"] = title
+    book["author"] = author
+    book["category"] = category
+    book["copies"] = copies
+    book["available"] = copies - active
+    if saveBooks(books):
+        return True, "Book " + book["id"] + " updated."
+    return False, "Could not save the changes (file error)."
+
+
+# delete a book if no copies are borrowed
+def deleteBook(bookId):
+    books = loadBooks()
+    book = findRecord(books, bookId)
+    if book is None:
+        return False, "Book not found."
+    active = countActiveLoans(loadHistory(), "book_id", book["id"])
+    if active > 0:
+        return False, "Cannot delete: this book has " + str(active) + " active loan(s)."
+    books.remove(book)
+    if saveBooks(books):
+        return True, "Book " + book["id"] + " deleted."
+    return False, "Could not save the changes (file error)."
+
+
+def addBorrower(name, contact):
+    borrowers = loadBorrowers()
+    name = cleanText(name)
+    contact = cleanText(contact)
+    if name == "" or contact == "":
+        return False, "Name and contact cannot be empty."
+    for borrower in borrowers:
+        if borrower["name"].lower() == name.lower() and borrower["contact"] == contact:
+            return False, "This borrower already exists (" + borrower["id"] + ")."
+    record = {
+        "id": nextId(borrowers, "BR"),
+        "name": name,
+        "contact": contact,
+        "date_registered": todayText(),
+    }
+    if appendRecord(BORROWERS_FILE, BORROWER_FIELDS, record):
+        return True, "Borrower added with ID " + record["id"] + "."
+    return False, "Could not save the borrower (file error)."
+
+
+def updateBorrower(borrowerId, name, contact):
+    borrowers = loadBorrowers()
+    borrower = findRecord(borrowers, borrowerId)
+    if borrower is None:
+        return False, "Borrower not found."
+    name = cleanText(name)
+    contact = cleanText(contact)
+    if name == "" or contact == "":
+        return False, "Name and contact cannot be empty."
+    borrower["name"] = name
+    borrower["contact"] = contact
+    if saveBorrowers(borrowers):
+        return True, "Borrower " + borrower["id"] + " updated."
+    return False, "Could not save the changes (file error)."
+
+
+# delete a borrower if they have no books
+def deleteBorrower(borrowerId):
+    borrowers = loadBorrowers()
+    borrower = findRecord(borrowers, borrowerId)
+    if borrower is None:
+        return False, "Borrower not found."
+    active = countActiveLoans(loadHistory(), "borrower_id", borrower["id"])
+    if active > 0:
+        return False, "Cannot delete: this borrower has " + str(active) + " active loan(s)."
+    borrowers.remove(borrower)
+    if saveBorrowers(borrowers):
+        return True, "Borrower " + borrower["id"] + " deleted."
+    return False, "Could not save the changes (file error)."
